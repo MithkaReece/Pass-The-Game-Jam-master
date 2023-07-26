@@ -8,8 +8,10 @@ public class Movement : MonoBehaviour
     [SerializeField] Rigidbody rb;
 
     [SerializeField] private float jumpSpeed = 5f;
-    [SerializeField] private Transform jumpCheck;
     [SerializeField] private LayerMask terrainLayerMask;
+
+    private bool isGrounded = false;
+    float groundDistance = 3.5f;
 
     void Update()
     {
@@ -28,9 +30,17 @@ public class Movement : MonoBehaviour
 
         rb.velocity = velocity;
 
-        if (Input.GetButtonDown("Jump") && Physics.CheckSphere(jumpCheck.position, 1f, terrainLayerMask))
-        {
-            rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
+        RaycastHit hit;
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, out hit, groundDistance, terrainLayerMask);
+
+        if (isGrounded) {
+            if (Input.GetButtonDown("Jump"))
+            {
+                Debug.Log("Jump");
+                rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
+            }
         }
+
+
     }
 }

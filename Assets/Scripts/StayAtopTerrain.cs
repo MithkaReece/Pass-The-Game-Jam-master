@@ -8,6 +8,8 @@ public class StayAtopTerrain : MonoBehaviour
 
     private void Update()
     {
+        
+
         // Send a raycast from far above the object down to right above it.
         // If it hits terrain, then object is below the terrain,
         // probably because a mountain was placed on it,
