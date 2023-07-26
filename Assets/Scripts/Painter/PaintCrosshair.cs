@@ -12,7 +12,7 @@ public class PaintCrosshair : MonoBehaviour
     // but it's to show that the player can't interact with teh canvas when they're out of range
     private void Update()
     {
-        if (paintDrawer.withinRange)
+        if (paintDrawer.withinRange && PlayerManager.Instance.PainterActive())
         {
             crosshair.texture = canvasPaintTexture;
             crosshair.color = Color.white;

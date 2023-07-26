@@ -16,9 +16,15 @@ public class TerrainManager : MonoBehaviour
 
     public enum LandType
     {
-        Grass,
-        Water,
-        Mountain // gray
+        Ground,
+        Crator,
+        One,
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven
     }
 
     private int resolution;
