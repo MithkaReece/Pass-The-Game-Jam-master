@@ -3,13 +3,14 @@ using UnityEngine;
 
 public class PaintDrawer : MonoBehaviour
 {
-    [SerializeField] private int _penSize = 15;
+    [SerializeField] private int _penSize;
     [SerializeField] private PaintCanvas _canvas;
     [SerializeField] private LayerMask _canvasLayerMask;
     [SerializeField] private LayerMask _paletteColorLayerMask;
     [SerializeField] private float _maxPaintDistance = 10f;
     [SerializeField] private int _interpolateSteps = 10;
     [SerializeField] private TerrainManager _terrainManager;
+    [SerializeField] private float _paintLeft;
 
     private TerrainManager.LandType _currentLandTypeDraw;
 
@@ -26,7 +27,7 @@ public class PaintDrawer : MonoBehaviour
     private bool _hoveringOverCanvas; // if within range and cursor is pointed towards the canvas
     public bool hoveringOverCanvas { get { return _hoveringOverCanvas; } }
 
-    private bool paintLeft = false;
+    private bool paintSelected = false;
 
     private void Update()
     {
@@ -39,7 +40,7 @@ public class PaintDrawer : MonoBehaviour
         // Check for hovered palette color
         if (Physics.Raycast(transform.position, transform.forward, out RaycastHit paletteColorTouch, 10f, _paletteColorLayerMask))
         {
-            Debug.Log("TOUCH " + paletteColorTouch.collider.gameObject.name);
+            //Debug.Log("TOUCH " + paletteColorTouch.collider.gameObject.name);
             PaletteColor paletteColorObj = paletteColorTouch.collider.gameObject.GetComponent<PaletteColor>();
             if (!paletteColorObj) return;
 
@@ -58,7 +59,7 @@ public class PaintDrawer : MonoBehaviour
 
     private void SetLandType(TerrainManager.LandType landType, Color canvasDrawColor)
     {
-        paintLeft = true;
+        paintSelected = true;
         _currentLandTypeDraw = landType;
 
         _colors = Enumerable.Repeat(canvasDrawColor, _penSize * _penSize).ToArray();
@@ -72,7 +73,7 @@ public class PaintDrawer : MonoBehaviour
         if (!_withinRange) return;
 
         // Player has no paint selected
-        if (!paintLeft) return;
+        if (!paintSelected || _penSize > _paintLeft) return;
 
         bool drawing = Input.GetMouseButton(0);
         _hoveringOverCanvas = Physics.Raycast(transform.position, transform.forward, out RaycastHit _paintTouch, _maxPaintDistance + 5f, _canvasLayerMask);
@@ -111,6 +112,7 @@ public class PaintDrawer : MonoBehaviour
             _lastTouchPos = new Vector2(x, y);
             _lastTouchTextureCoord = touchPosTexCoord;
             _touchedLastFrame = true;
+            _paintLeft -= _penSize;
         } else
         {
             _touchedLastFrame = false;

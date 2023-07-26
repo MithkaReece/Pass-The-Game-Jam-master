@@ -65,7 +65,7 @@ public class TerrainManager : MonoBehaviour
     /// <param name="landType"></param>
     public void SetLandTypeRegion(float xCoord, float yCoord, float paintSize, LandType landType)
     {
-        Debug.Log(landType);
+        //Debug.Log(landType);
         float targetHeight = paletteColors[(int)landType].LandHeight;
 
         // Calculate lower corner of brush
@@ -90,7 +90,7 @@ public class TerrainManager : MonoBehaviour
                 heights[hx, hy] = targetHeight;
             }
         }
-        Debug.Log(targetHeight);
+        //Debug.Log(targetHeight);
         terrain.terrainData.SetHeights(x, y, heights);
     }
 
