@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 [ExecuteAlways]
 public class TerrainManager : MonoBehaviour
@@ -37,8 +39,16 @@ public class TerrainManager : MonoBehaviour
         terrain.terrainData.SetHeights(0, 0, initialHeights);
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.M))
+            SaveTerrain("terrain_heights.data");
+        if (Input.GetKeyDown(KeyCode.O))
+            LoadTerrainHeightsFromFile("terrain_heights.data");
+    }
+
     /// <summary>
-    /// Sets the height of a ragion on the terrain, cinvering the given texture-space coordinated into terrain space coordinates, 
+    /// Sets the height of a region on the terrain, converting the given texture-space coordinated into terrain space coordinates, 
     /// and setting height based on the land type provided.
     /// </summary>
     /// <param name="xCoord">X texture coordinate on canvas, from 0 to 1</param>
@@ -49,17 +59,20 @@ public class TerrainManager : MonoBehaviour
     {
         float targetHeight = _landTypeHeights[(int)landType];
 
+        // Calculate lower corner of brush
         // keep above 0, center heightmap change area on coordinate
         int x = Mathf.Max(0, (int)((xCoord - paintSize/2f) * resolution)); 
         int y = Mathf.Max(0, (int)((yCoord - paintSize/2f) * resolution));
         int size = (int)(paintSize * resolution);
 
+        // Calculate upper corner of brush
         // Keep upper bound coordinates below size of heightmap
         int xMax = Mathf.Min(x + size, resolution);
         int yMax = Mathf.Min(y + size, resolution);
 
-        Debug.Log(xCoord+", "+yCoord+", "+x + ", " + y + ", " + xMax + ", " + yMax);
+        Debug.Log(xCoord+", "+yCoord+". Clamped: "+x + ", " + y + ", " + xMax + ", " + yMax);
 
+        //Fill in square region between two corners (centered at draw position)
         float[,] heights = new float[xMax-x, yMax-y];
         for (int hx = 0; hx < xMax - x; hx++) 
         {
@@ -70,5 +83,51 @@ public class TerrainManager : MonoBehaviour
         }
 
         terrain.terrainData.SetHeights(x, y, heights);
+    }
+
+    public void SaveTerrain(string filename) {
+        float[,] heights = terrain.terrainData.GetHeights(0, 0, terrain.terrainData.heightmapResolution, terrain.terrainData.heightmapResolution);
+        byte[] data = Serialize(heights);
+        File.WriteAllBytes(filename, data);
+        Debug.Log("Saved");
+    }
+
+    byte[] Serialize(float[,] heights)
+    {
+        BinaryFormatter bf = new BinaryFormatter();
+        using (MemoryStream ms = new MemoryStream())
+        {
+            bf.Serialize(ms, heights);
+            return ms.ToArray();
+        }
+    }
+
+    void LoadTerrainHeightsFromFile(string filename)
+    {
+        if (File.Exists(filename))
+        {
+            // Read the binary data from the file
+            byte[] data = File.ReadAllBytes(filename);
+
+            // Deserialize the binary data back to the heights array
+            float[,] heights = Deserialize(data);
+
+            // Set the terrain heights from the loaded data
+            terrain.terrainData.SetHeights(0, 0, heights);
+        }
+        else
+        {
+            Debug.LogError("Terrain height data file not found.");
+        }
+    }
+
+    // Helper method to deserialize the heights array from the binary data
+    float[,] Deserialize(byte[] data)
+    {
+        BinaryFormatter bf = new BinaryFormatter();
+        using (MemoryStream ms = new MemoryStream(data))
+        {
+            return (float[,])bf.Deserialize(ms);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
 
 public class PaintCanvas : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class PaintCanvas : MonoBehaviour
 
         r.material.mainTexture = texture;
 
+        //TODO don't use FindFirstObject <- its slow
         FindFirstObjectByType<Terrain>().materialTemplate = r.material;
 
         //TestingDraw();
@@ -28,6 +30,16 @@ public class PaintCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.M)) {
+            byte[] textureBytes = texture.EncodeToPNG();
+            File.WriteAllBytes("Canvas_texture.png", textureBytes);
+        }
+
+        if (Input.GetKeyDown(KeyCode.O)) {
+            // Read the byte array from the file
+            byte[] textureBytes = File.ReadAllBytes("Canvas_texture.png");
+            texture.LoadImage(textureBytes);
+        }
         
     }
 }

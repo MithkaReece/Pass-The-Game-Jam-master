@@ -26,11 +26,6 @@ public class PaintDrawer : MonoBehaviour
     private bool _hoveringOverCanvas; // if within range and cursor is pointed towards the canvas
     public bool hoveringOverCanvas { get { return _hoveringOverCanvas; } }
 
-    private void Start()
-    {
-        
-    }
-
     private void Update()
     {
         CheckSelectColor();
@@ -62,16 +57,18 @@ public class PaintDrawer : MonoBehaviour
     private void SetLandType(TerrainManager.LandType landType, Color canvasDrawColor)
     {
         _currentLandTypeDraw = landType;
-        
+
         _colors = Enumerable.Repeat(canvasDrawColor, _penSize * _penSize).ToArray();
     }
 
     private void Draw()
     {
+        // Player is close enough to canvas
         float distanceFromCanvas = (_canvas.transform.position - transform.position).magnitude;
         _withinRange = distanceFromCanvas < _maxPaintDistance;
         if (!_withinRange) return;
 
+        // Player has not paint
         if (_currentLandTypeDraw == TerrainManager.LandType.Empty) return;
 
         bool drawing = Input.GetMouseButton(0);
