@@ -9,6 +9,8 @@ public class PaletteColor : MonoBehaviour
     private Renderer renderer;
     public Color matBaseColor { get; private set; }
 
+    public float LandHeight;
+
     
     private void Awake()
     {

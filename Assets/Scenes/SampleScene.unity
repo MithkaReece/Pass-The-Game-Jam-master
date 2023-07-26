@@ -368,6 +368,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   landType: 1
   hovered: 0
+  LandHeight: 0.2
 --- !u!1 &273679224
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,6 +489,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 816733566b4a86c44b8053ac6935b6dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _terrainManager: {fileID: 882595515}
   _textureSize: {x: 512, y: 384}
 --- !u!1 &410087039
 GameObject:
@@ -826,6 +828,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   landType: 2
   hovered: 0
+  LandHeight: 0
 --- !u!1 &590714843
 GameObject:
   m_ObjectHideFlags: 0
@@ -1400,6 +1403,10 @@ MonoBehaviour:
   - 0.2
   - 0
   - 1
+  paletteColors:
+  - {fileID: 204132429}
+  - {fileID: 564144933}
+  - {fileID: 1028893562}
 --- !u!1 &966305110
 GameObject:
   m_ObjectHideFlags: 0
@@ -1713,6 +1720,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   landType: 3
   hovered: 0
+  LandHeight: 1
 --- !u!1 &1046574538
 GameObject:
   m_ObjectHideFlags: 0

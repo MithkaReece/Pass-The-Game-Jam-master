@@ -11,7 +11,7 @@ public class PaintDrawer : MonoBehaviour
     [SerializeField] private int _interpolateSteps = 10;
     [SerializeField] private TerrainManager _terrainManager;
 
-    private TerrainManager.LandType _currentLandTypeDraw = TerrainManager.LandType.Empty;
+    private TerrainManager.LandType _currentLandTypeDraw;
 
     private Color[] _colors;
 
@@ -25,6 +25,8 @@ public class PaintDrawer : MonoBehaviour
 
     private bool _hoveringOverCanvas; // if within range and cursor is pointed towards the canvas
     public bool hoveringOverCanvas { get { return _hoveringOverCanvas; } }
+
+    private bool paintLeft = false;
 
     private void Update()
     {
@@ -56,6 +58,7 @@ public class PaintDrawer : MonoBehaviour
 
     private void SetLandType(TerrainManager.LandType landType, Color canvasDrawColor)
     {
+        paintLeft = true;
         _currentLandTypeDraw = landType;
 
         _colors = Enumerable.Repeat(canvasDrawColor, _penSize * _penSize).ToArray();
@@ -68,8 +71,8 @@ public class PaintDrawer : MonoBehaviour
         _withinRange = distanceFromCanvas < _maxPaintDistance;
         if (!_withinRange) return;
 
-        // Player has not paint
-        if (_currentLandTypeDraw == TerrainManager.LandType.Empty) return;
+        // Player has no paint selected
+        if (!paintLeft) return;
 
         bool drawing = Input.GetMouseButton(0);
         _hoveringOverCanvas = Physics.Raycast(transform.position, transform.forward, out RaycastHit _paintTouch, _maxPaintDistance + 5f, _canvasLayerMask);

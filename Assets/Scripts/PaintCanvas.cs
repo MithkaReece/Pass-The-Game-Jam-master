@@ -5,6 +5,8 @@ using System.IO;
 
 public class PaintCanvas : MonoBehaviour
 {
+    [SerializeField] private TerrainManager _terrainManager;
+
     [SerializeField] private Vector2Int _textureSize;
     public Vector2Int textureSize { get { return _textureSize; } }
 
@@ -30,11 +32,12 @@ public class PaintCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Save
         if (Input.GetKeyDown(KeyCode.M)) {
             byte[] textureBytes = texture.EncodeToPNG();
             File.WriteAllBytes("Canvas_texture.png", textureBytes);
         }
-
+        //Load
         if (Input.GetKeyDown(KeyCode.O)) {
             // Read the byte array from the file
             byte[] textureBytes = File.ReadAllBytes("Canvas_texture.png");

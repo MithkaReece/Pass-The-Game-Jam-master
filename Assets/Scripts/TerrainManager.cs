@@ -10,11 +10,12 @@ public class TerrainManager : MonoBehaviour
 {
     [SerializeField] private Terrain terrain;
 
-    [SerializeField] private float[] _landTypeHeights;
+
+    [SerializeField] public List<PaletteColor> paletteColors;
+    
 
     public enum LandType
     {
-        Empty,
         Grass,
         Water,
         Mountain // gray
@@ -33,7 +34,7 @@ public class TerrainManager : MonoBehaviour
         {
             for (int y = 0; y < resolution; y++)
             {
-                initialHeights[x, y] = _landTypeHeights[0];
+                initialHeights[x, y] = paletteColors[0].LandHeight;
             }
         }
         terrain.terrainData.SetHeights(0, 0, initialHeights);
@@ -45,6 +46,7 @@ public class TerrainManager : MonoBehaviour
             SaveTerrain("terrain_heights.data");
         if (Input.GetKeyDown(KeyCode.O))
             LoadTerrainHeightsFromFile("terrain_heights.data");
+
     }
 
     /// <summary>
@@ -57,7 +59,8 @@ public class TerrainManager : MonoBehaviour
     /// <param name="landType"></param>
     public void SetLandTypeRegion(float xCoord, float yCoord, float paintSize, LandType landType)
     {
-        float targetHeight = _landTypeHeights[(int)landType];
+        Debug.Log(landType);
+        float targetHeight = paletteColors[(int)landType].LandHeight;
 
         // Calculate lower corner of brush
         // keep above 0, center heightmap change area on coordinate
@@ -70,7 +73,7 @@ public class TerrainManager : MonoBehaviour
         int xMax = Mathf.Min(x + size, resolution);
         int yMax = Mathf.Min(y + size, resolution);
 
-        Debug.Log(xCoord+", "+yCoord+". Clamped: "+x + ", " + y + ", " + xMax + ", " + yMax);
+        //Debug.Log(xCoord+", "+yCoord+". Clamped: "+x + ", " + y + ", " + xMax + ", " + yMax);
 
         //Fill in square region between two corners (centered at draw position)
         float[,] heights = new float[xMax-x, yMax-y];
@@ -81,9 +84,12 @@ public class TerrainManager : MonoBehaviour
                 heights[hx, hy] = targetHeight;
             }
         }
-
+        Debug.Log(targetHeight);
         terrain.terrainData.SetHeights(x, y, heights);
     }
+
+
+
 
     public void SaveTerrain(string filename) {
         float[,] heights = terrain.terrainData.GetHeights(0, 0, terrain.terrainData.heightmapResolution, terrain.terrainData.heightmapResolution);
