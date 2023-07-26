@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -10,9 +11,8 @@ public class PaintDrawer : MonoBehaviour
     [SerializeField] private float _maxPaintDistance = 10f;
     [SerializeField] private int _interpolateSteps = 10;
     [SerializeField] private TerrainManager _terrainManager;
-    [SerializeField] private float _paintLeft;
 
-    private TerrainManager.LandType _currentLandTypeDraw;
+    private PaletteColor _currentPalleteColor;
 
     private Color[] _colors;
 
@@ -28,6 +28,21 @@ public class PaintDrawer : MonoBehaviour
     public bool hoveringOverCanvas { get { return _hoveringOverCanvas; } }
 
     private bool paintSelected = false;
+
+    [SerializeField] float[] _paintLeft;
+    
+
+    private void Start()
+    {
+        _paintLeft = new float[_terrainManager.paletteColors.Count];
+        _paintLeft[0] += 1000f;
+        _paintLeft[1] += 200f;
+
+        foreach(PaletteColor palleteColor in _terrainManager.paletteColors)
+        {
+            palleteColor.UpdateOpacity(_paintLeft[(int)palleteColor.landType]);
+        }
+    }
 
     private void Update()
     {
@@ -50,20 +65,13 @@ public class PaintDrawer : MonoBehaviour
             // only select if clicked this frame
             if (!Input.GetMouseButtonDown(0)) return;
 
-            Color drawColor = paletteColorObj.matBaseColor;
-            SetLandType(paletteColorObj.landType, drawColor);
-
+            _currentPalleteColor = paletteColorObj;
+            _colors = Enumerable.Repeat(paletteColorObj.matBaseColor, _penSize * _penSize).ToArray();
+            paintSelected = true;
             Debug.Log("set color to " + paletteColorObj);
         }
     }
 
-    private void SetLandType(TerrainManager.LandType landType, Color canvasDrawColor)
-    {
-        paintSelected = true;
-        _currentLandTypeDraw = landType;
-
-        _colors = Enumerable.Repeat(canvasDrawColor, _penSize * _penSize).ToArray();
-    }
 
     private void Draw()
     {
@@ -73,7 +81,7 @@ public class PaintDrawer : MonoBehaviour
         if (!_withinRange) return;
 
         // Player has no paint selected
-        if (!paintSelected || _penSize > _paintLeft) return;
+        if (!paintSelected || _penSize > _paintLeft[(int)_currentPalleteColor.landType]) return;
 
         bool drawing = Input.GetMouseButton(0);
         _hoveringOverCanvas = Physics.Raycast(transform.position, transform.forward, out RaycastHit _paintTouch, _maxPaintDistance + 5f, _canvasLayerMask);
@@ -92,7 +100,7 @@ public class PaintDrawer : MonoBehaviour
             if (_touchedLastFrame)
             {
                 _canvas.texture.SetPixels(x, y, _penSize, _penSize, _colors);
-                _terrainManager.SetLandTypeRegion(touchPosTexCoord.x, touchPosTexCoord.y, _penSize * 1f / _canvas.textureSize.x, _currentLandTypeDraw);
+                _terrainManager.SetLandTypeRegion(touchPosTexCoord.x, touchPosTexCoord.y, _penSize * 1f / _canvas.textureSize.x, _currentPalleteColor.landType);
 
                 // Interpolate between the two frames and draw, so that there aren't holes in the line.
                 for (float t = 1f/_interpolateSteps; t < 1f; t +=1f/_interpolateSteps)
@@ -103,7 +111,7 @@ public class PaintDrawer : MonoBehaviour
 
                     float lerpTexX = Mathf.Lerp(_lastTouchTextureCoord.x, touchPosTexCoord.x, t);
                     float lerpTexY = Mathf.Lerp(_lastTouchTextureCoord.y, touchPosTexCoord.y, t);
-                    _terrainManager.SetLandTypeRegion(lerpTexX, lerpTexY, _penSize * 1f / _canvas.textureSize.x, _currentLandTypeDraw);
+                    _terrainManager.SetLandTypeRegion(lerpTexX, lerpTexY, _penSize * 1f / _canvas.textureSize.x, _currentPalleteColor.landType);
                 }
 
                 _canvas.texture.Apply();
@@ -112,10 +120,15 @@ public class PaintDrawer : MonoBehaviour
             _lastTouchPos = new Vector2(x, y);
             _lastTouchTextureCoord = touchPosTexCoord;
             _touchedLastFrame = true;
-            _paintLeft -= _penSize;
+            updatePaint(_currentPalleteColor, -_penSize);
         } else
         {
             _touchedLastFrame = false;
         }
+    }
+
+    public void updatePaint(PaletteColor paletteColor, float amount) {
+        _paintLeft[(int)paletteColor.landType] += amount;
+        paletteColor.UpdateOpacity(_paintLeft[(int)paletteColor.landType]);
     }
 }

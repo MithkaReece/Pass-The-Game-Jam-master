@@ -11,6 +11,7 @@ public class PaletteColor : MonoBehaviour
 
     public float LandHeight;
 
+    private float opacity = 1f;
     
     private void Awake()
     {
@@ -21,14 +22,26 @@ public class PaletteColor : MonoBehaviour
 
     private void Update()
     {
+        Color newColor;
         if (hovered)
         {
-            renderer.material.color = Color.Lerp(matBaseColor, Color.white, 0.5f);
+            newColor = Color.Lerp(matBaseColor, Color.white, 0.5f);
         } else
         {
-            renderer.material.color = matBaseColor;
+            newColor = matBaseColor;
         }
+        newColor.a = opacity;
+        renderer.material.color = newColor;
 
         hovered = false;
+    }
+
+    float maxPaint = 1000f;
+    public void UpdateOpacity(float paintLeft) {
+        opacity = paintLeft / maxPaint;
+        if(opacity == 0) 
+            renderer.enabled = false;
+        else 
+            renderer.enabled = true;
     }
 }
